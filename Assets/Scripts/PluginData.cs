@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 
 public enum PlayerTypes
@@ -11,14 +10,23 @@ public enum PlayerTypes
 	DISRUPTOR
 }
 
-public class PluginData : MonoBehaviour
+[CreateAssetMenu(menuName = "PluginData/Table")]
+public class PluginData : ScriptableObject
 {
-	public int playerTypesCount = 6;
-	public List<GameplayFeature> gameplayFeatures = new List<GameplayFeature>();
-	public int[][] tableOfFeatures;
-	public bool setDefault = true;
+	public int playerTypesCount = StaticPlayerTypesCount;
+	private static int StaticPlayerTypesCount = 6;
 
-	void Start()
+	public int gameplayFeaturesCount = StaticGameplayFeaturesCount;
+	private static int StaticGameplayFeaturesCount = 15;
+
+	public float minCellValue = 0.0f;
+	public float maxCellValue = 10.0f;
+	public bool canEditDuringPlayMode = false;
+
+	public GameplayFeature[] gameplayFeatures = new GameplayFeature[] { };
+	public int[] tableOfFeatures = new int[StaticPlayerTypesCount * StaticGameplayFeaturesCount];
+
+	/*void Start()
 	{
 		SetTableData();
 	}
@@ -39,6 +47,7 @@ public class PluginData : MonoBehaviour
 	{
 
 	}
+	*/
 }
 
 /* filter only enabled features
