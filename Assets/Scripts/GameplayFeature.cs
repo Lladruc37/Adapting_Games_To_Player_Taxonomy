@@ -3,6 +3,9 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "PluginData/GameplayFeature")]
 public class GameplayFeature : ScriptableObject
 {
-	public bool featureEnabled = false;
-	public string featureName;
+	// name of the feature
+	public string FeatureName;
+
+	// wether the feature will be considered or not
+	public bool FeatureEnabled = true;
 }

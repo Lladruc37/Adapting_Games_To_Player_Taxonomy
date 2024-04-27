@@ -13,50 +13,16 @@ public enum PlayerTypes
 [CreateAssetMenu(menuName = "PluginData/Table")]
 public class PluginData : ScriptableObject
 {
-	public int playerTypesCount = StaticPlayerTypesCount;
-	private static int StaticPlayerTypesCount = 6;
+	public int PlayerTypesCount = staticPlayerTypesCount;
+	private static int staticPlayerTypesCount = 6;
 
-	public int gameplayFeaturesCount = StaticGameplayFeaturesCount;
-	private static int StaticGameplayFeaturesCount = 15;
+	public int GameplayFeaturesCount = staticGameplayFeaturesCount;
+	private static int staticGameplayFeaturesCount = 26;
 
-	public float minCellValue = 0.0f;
-	public float maxCellValue = 10.0f;
-	public bool canEditDuringPlayMode = false;
+	public float MinCellValue = 0.0f;
+	public float MaxCellValue = 10.0f;
+	public bool CanEditDuringPlayMode = false;
 
-	public GameplayFeature[] gameplayFeatures = new GameplayFeature[] { };
-	public int[] tableOfFeatures = new int[StaticPlayerTypesCount * StaticGameplayFeaturesCount];
-
-	/*void Start()
-	{
-		SetTableData();
-	}
-
-	private void SetTableData()
-	{
-		if (setDefault)
-		{
-			for (int i = 0; i < gameplayFeatures.Count; i++)
-			{
-				int[] feature = { 5, 5, 5, 5, 5, 5 };
-				tableOfFeatures[i] = feature;
-			}
-		}
-	}
-
-	void Update()
-	{
-
-	}
-	*/
+	public GameplayFeature[] GameplayFeatures = new GameplayFeature[] { };
+	public int[] TableOfFeatures = new int[staticPlayerTypesCount * staticGameplayFeaturesCount];
 }
-
-/* filter only enabled features
- 
-		int featuresCount = 0;
-        foreach (var feature in gameplayFeatures)
-        {
-            if(feature.featureEnabled)
-				featuresCount++;
-        }
- 
- */
