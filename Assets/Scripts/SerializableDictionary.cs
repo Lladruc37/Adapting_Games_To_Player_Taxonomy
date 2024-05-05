@@ -33,4 +33,11 @@ public class SerializableDictionary<TKey, TValue> : Dictionary<TKey, TValue>, IS
 			values.Add(pair.Value);
 		}
 	}
+
+	public void AddSerializableDic(TKey key, TValue value)
+	{
+		//this.Add(key, value);
+		keys.Add(key);
+		values.Add(value);
+	}
 }

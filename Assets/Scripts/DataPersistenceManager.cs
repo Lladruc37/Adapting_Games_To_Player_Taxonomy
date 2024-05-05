@@ -35,6 +35,7 @@ public class DataPersistenceManager : MonoBehaviour
 	// initiate data handler and load profile
 	private void Start()
 	{
+		Debug.Log(Application.persistentDataPath);
 		dataHandler = new FileDataHandler(Application.persistentDataPath, fileName, useEncryption);
 		dataPersistenceObjects = FindAllDataPersistenceObjects();
 		LoadProfile();

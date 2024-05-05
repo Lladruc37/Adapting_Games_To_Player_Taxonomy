@@ -36,7 +36,12 @@ public class PluginControllerEditorWindow : Editor
 
 		//button
 		if (GUILayout.Button("Apply Profile Changes", options))
-			controller.PlayerProfileData = unsavedProfileData;
+		{
+			PluginController.Instance.PlayerProfileData = unsavedProfileData;
+			//controller.PlayerProfileData = unsavedProfileData;
+			DataPersistenceManager.Instance.SaveProfile();
+			unsavedProfileData = null;
+		}
 
 		EditorGUILayout.Space();
 
@@ -52,7 +57,7 @@ public class PluginControllerEditorWindow : Editor
 			a.ApplyModifiedProperties();
 
 		if (GUILayout.Button("Update Features Coefficients", options))
-			controller.UpdateFeaturesCoefficient();
+			PluginController.Instance.UpdateFeaturesCoefficient();
 
 		EditorGUILayout.Space();
 		EditorGUILayout.Separator();
@@ -76,24 +81,24 @@ public class PluginControllerEditorWindow : Editor
 
 	private void GUIPlayerProfile(GUILayoutOption[] options)
 	{
-		unsavedProfileData ??= new PlayerProfileData();
+		if (unsavedProfileData == null || Application.isPlaying)
+		{
+			unsavedProfileData = new PlayerProfileData();
+			for (var key = 0; key < PluginController.Instance.PlayerProfileData.Profile.Count; key++)
+				unsavedProfileData.Profile[(PlayerTypes)key] = PluginController.Instance.PlayerProfileData.Profile[(PlayerTypes)key];
+		}
 
 		EditorGUILayout.BeginHorizontal();
-
-		foreach (var playerTypePair in controller.PlayerProfileData.Profile)
+		for (var key = 0; key < PluginController.Instance.PlayerProfileData.Profile.Count; key++)
 		{
 			EditorGUILayout.BeginVertical();
 
-			GUIModularTextField(PlayerTypeToTitle(playerTypePair.Key));
+			GUIModularTextField(PlayerTypeToTitle((PlayerTypes)key));
 
-			if (unsavedProfileData.Profile.TryGetValue(playerTypePair.Key, out float value))
-				unsavedProfileData.Profile[playerTypePair.Key] = EditorGUILayout.FloatField(value, options);
-			else
-				unsavedProfileData.Profile.Add(playerTypePair.Key, playerTypePair.Value);
+			unsavedProfileData.Profile[(PlayerTypes)key] = EditorGUILayout.FloatField(unsavedProfileData.Profile[(PlayerTypes)key], options);
 
 			EditorGUILayout.EndVertical();
 		}
-
 		EditorGUILayout.EndHorizontal();
 	}
 
@@ -106,7 +111,7 @@ public class PluginControllerEditorWindow : Editor
 		horizontalScroll = GUILayout.BeginScrollView(horizontalScroll);
 		EditorGUILayout.BeginHorizontal();
 
-		foreach (var feature in controller.FeaturesCoefficient)
+		foreach (var feature in PluginController.Instance.FeaturesCoefficient)
 		{
 			EditorGUILayout.BeginVertical();
 

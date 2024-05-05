@@ -354,7 +354,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   fileName: plugin_data.game
-  useEncryption: 1
+  useEncryption: 0
   pluginController: {fileID: 1178592803}
 --- !u!1 &1178592802
 GameObject:
@@ -387,14 +387,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PlayerProfileData:
     Profile:
-      keys: 000000000100000002000000030000000400000005000000
-      values:
-      - 5
-      - 5
-      - 5
-      - 5
-      - 5
-      - 5
+      keys: 
+      values: []
   pluginData: {fileID: 11400000, guid: b9dab4991a5da6c4a8f928f7dc44336c, type: 2}
 --- !u!4 &1178592804
 Transform:
