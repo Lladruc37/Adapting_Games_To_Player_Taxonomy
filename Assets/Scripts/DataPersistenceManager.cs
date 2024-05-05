@@ -20,7 +20,6 @@ public class DataPersistenceManager : MonoBehaviour
 
 	private PlayerProfileData profileData;
 	private FileDataHandler dataHandler;
-	[SerializeField] private PluginController pluginController;
 
 	private void Awake()
 	{

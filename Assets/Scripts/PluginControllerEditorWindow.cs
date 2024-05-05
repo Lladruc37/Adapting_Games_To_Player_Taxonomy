@@ -27,48 +27,47 @@ public class PluginControllerEditorWindow : Editor
 
 		EditorGUILayout.Space();
 
-		//player profile
-		GUIPlayerProfile(options);
-
-		EditorGUILayout.Space();
-		EditorGUILayout.Separator();
-		EditorGUILayout.Space();
-
-		//button
-		if (GUILayout.Button("Apply Profile Changes", options))
+		if (PluginController.Initialized == false)
 		{
-			PluginController.Instance.PlayerProfileData = unsavedProfileData;
-			//controller.PlayerProfileData = unsavedProfileData;
-			DataPersistenceManager.Instance.SaveProfile();
-			unsavedProfileData = null;
+			// play is required at least once to instantiate the instances and load the profile from the path
+			GUIModularTextField("Enter play mode once to finish plugin setup!");
 		}
+		else
+		{
+			//player profile
+			GUIPlayerProfile(options);
 
-		EditorGUILayout.Space();
+			EditorGUILayout.Space();
+			EditorGUILayout.Separator();
+			EditorGUILayout.Space();
 
-		//features coefficient
-		GUIFeaturesCoefficient();
+			EditorGUILayout.BeginHorizontal();
 
+			//button
+			if (GUILayout.Button("Apply Profile Changes", options))
+			{
+				PluginController.Instance.PlayerProfileData = unsavedProfileData;
+				PluginController.Instance.UpdateFeaturesCoefficient();
+				DataPersistenceManager.Instance.SaveProfile();
+				unsavedProfileData = null;
+			}
+
+			GUICellValues();
+
+			EditorGUILayout.EndHorizontal();
+
+			EditorGUILayout.Space();
+
+			//features coefficient
+			GUIFeaturesCoefficient();
+		}
 		EditorGUILayout.Space();
 
 		var a = new SerializedObject(controller);
 		EditorGUILayout.ObjectField(a.FindProperty("pluginData"));
-		//GUICanEditDuringPlayMode();
+
 		if (GUI.changed)
 			a.ApplyModifiedProperties();
-
-		if (GUILayout.Button("Update Features Coefficients", options))
-			PluginController.Instance.UpdateFeaturesCoefficient();
-
-		EditorGUILayout.Space();
-		EditorGUILayout.Separator();
-		EditorGUILayout.Space();
-
-		//gameplayFeaturesList.DoLayoutList();
-
-		EditorGUILayout.Space();
-
-		//if (GUI.changed)
-		//	data.ApplyModifiedProperties();
 	}
 
 	private static void GUITitle()
@@ -87,6 +86,10 @@ public class PluginControllerEditorWindow : Editor
 			for (var key = 0; key < PluginController.Instance.PlayerProfileData.Profile.Count; key++)
 				unsavedProfileData.Profile[(PlayerTypes)key] = PluginController.Instance.PlayerProfileData.Profile[(PlayerTypes)key];
 		}
+		EditorGUILayout.BeginVertical();
+
+		GUIModularTextField(ObjectNames.NicifyVariableName("currentProfileData"));
+		GUI.enabled = false;
 
 		EditorGUILayout.BeginHorizontal();
 		for (var key = 0; key < PluginController.Instance.PlayerProfileData.Profile.Count; key++)
@@ -95,12 +98,55 @@ public class PluginControllerEditorWindow : Editor
 
 			GUIModularTextField(PlayerTypeToTitle((PlayerTypes)key));
 
-			unsavedProfileData.Profile[(PlayerTypes)key] = EditorGUILayout.FloatField(unsavedProfileData.Profile[(PlayerTypes)key], options);
+			EditorGUILayout.FloatField(PluginController.Instance.PlayerProfileData.Profile[(PlayerTypes)key], options);
 
 			EditorGUILayout.EndVertical();
 		}
 		EditorGUILayout.EndHorizontal();
+
+		if (!Application.isPlaying)
+			GUI.enabled = true;
+		GUIModularTextField(ObjectNames.NicifyVariableName("unsavedProfileData"));
+
+		EditorGUILayout.BeginHorizontal();
+		for (var key = 0; key < PluginController.Instance.PlayerProfileData.Profile.Count; key++)
+		{
+			EditorGUILayout.BeginVertical();
+
+			GUIModularTextField(PlayerTypeToTitle((PlayerTypes)key));
+
+			unsavedProfileData.Profile[(PlayerTypes)key] = Mathf.Clamp(EditorGUILayout.FloatField(unsavedProfileData.Profile[(PlayerTypes)key], options), controller.ProfileMinCellValue, controller.ProfileMaxCellValue);
+
+			EditorGUILayout.EndVertical();
+		}
+		EditorGUILayout.EndHorizontal();
+		EditorGUILayout.EndVertical();
 	}
+
+	private void GUICellValues()
+	{
+		EditorGUILayout.BeginHorizontal();
+		EditorGUILayout.BeginHorizontal();
+
+		if (Application.isPlaying)
+			GUI.enabled = false;
+
+		GUIModularTextField(ObjectNames.NicifyVariableName("ProfileMinCellValue"));
+		controller.ProfileMinCellValue = EditorGUILayout.FloatField(controller.ProfileMinCellValue, GUILayout.Width(24.0f));
+
+		EditorGUILayout.EndHorizontal();
+		EditorGUILayout.BeginHorizontal();
+
+		GUIModularTextField(ObjectNames.NicifyVariableName("ProfileMaxCellValue"));
+		controller.ProfileMaxCellValue = EditorGUILayout.FloatField(controller.ProfileMaxCellValue, GUILayout.Width(24.0f));
+
+		if (!Application.isPlaying)
+			GUI.enabled = true;
+
+		EditorGUILayout.EndHorizontal();
+		EditorGUILayout.EndHorizontal();
+	}
+
 
 	private void GUIFeaturesCoefficient()
 	{

@@ -2,13 +2,17 @@ using System;
 using System.Collections.Generic;
 using UnityEngine;
 
+//[ExecuteAlways]
 public class PluginController : MonoBehaviour, IDataPersistence
 {
 	// singleton instance
 	public static PluginController Instance { get; private set; }
+	public static bool Initialized = false;
 
 	// player profile data
 	public PlayerProfileData PlayerProfileData;
+	public float ProfileMinCellValue = 0.0f;
+	public float ProfileMaxCellValue = 10.0f;
 
 	// plugin data
 	[SerializeField] private PluginData pluginData;
@@ -21,12 +25,14 @@ public class PluginController : MonoBehaviour, IDataPersistence
 
 	private void Awake()
 	{
+		Initialized = true;
 		if (Instance == null)
 			Instance = this;
 		else
 			Destroy(gameObject);
 
-		DontDestroyOnLoad(gameObject);
+		if (Application.isPlaying)
+			DontDestroyOnLoad(gameObject);
 	}
 
 	// trigger
@@ -57,9 +63,12 @@ public class PluginController : MonoBehaviour, IDataPersistence
 				float newCoef = 0.0f;
 
 				foreach (var profilePlayerType in PlayerProfileData.Profile)
-					newCoef += pluginData.TableOfFeatures[i + (int)profilePlayerType.Key * pluginData.GameplayFeaturesCount] * profilePlayerType.Value;
-
-				newCoef = ((newCoef / 300.0f) - 0.5f) * 2;
+				{
+					var varFeature = pluginData.TableOfFeatures[i + (int)profilePlayerType.Key * pluginData.GameplayFeaturesCount] / (pluginData.MaxCellValue - pluginData.MinCellValue);
+					var varPlayerType = (2.0f * profilePlayerType.Value / (ProfileMaxCellValue - ProfileMinCellValue)) - 1.0f;
+					newCoef += varFeature * varPlayerType;
+				}
+				newCoef /= (float)PlayerProfileData.Profile.Count;
 				FeaturesCoefficient.Add(feature, newCoef);
 			}
 		}
