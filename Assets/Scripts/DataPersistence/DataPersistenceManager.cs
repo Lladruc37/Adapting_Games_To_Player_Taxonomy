@@ -1,4 +1,6 @@
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using UnityEngine;
 
@@ -7,7 +9,8 @@ public class DataPersistenceManager : MonoBehaviour
 	[Header("File Storage Config")]
 
 	// file name of the save file
-	[SerializeField] private string fileName;
+	[SerializeField] private string profileFileName;
+	[SerializeField] private string surveyFileName;
 
 	// boolean to enable encryption
 	[SerializeField] private bool useEncryption;
@@ -19,7 +22,8 @@ public class DataPersistenceManager : MonoBehaviour
 	public static DataPersistenceManager Instance { get; private set; }
 
 	private PlayerProfileData profileData;
-	private FileDataHandler dataHandler;
+	private FileDataHandler profileDataHandler;
+	private FileDataHandler surveyDataHandler;
 
 	private void Awake()
 	{
@@ -27,34 +31,42 @@ public class DataPersistenceManager : MonoBehaviour
 			Instance = this;
 		else
 			Destroy(gameObject);
-
-		DontDestroyOnLoad(gameObject);
 	}
 
 	// initiate data handler and load profile
 	private void Start()
 	{
 		Debug.Log(Application.persistentDataPath);
-		dataHandler = new FileDataHandler(Application.persistentDataPath, fileName, useEncryption);
-		dataPersistenceObjects = FindAllDataPersistenceObjects();
-		LoadProfile();
-	}
+		Debug.Log(Application.dataPath);
+		if (!string.IsNullOrEmpty(profileFileName))
+		{
+			var surveyPath = Path.Combine(Application.dataPath, surveyFileName);
+			profileDataHandler = new FileDataHandler(Application.persistentDataPath, profileFileName, useEncryption);
+			surveyDataHandler = new FileDataHandler(Application.dataPath, surveyFileName, useEncryption);
+			try
+			{
+				if (File.Exists(surveyPath))
+					File.Delete(surveyPath);
+			}
+			catch (Exception e)
+			{
+				Debug.LogError($"Error trying to delete survey file in: {surveyPath}\n {e}");
+			}
 
-	// empty new default profile
-	public void NewProfile()
-	{
-		profileData = new PlayerProfileData();
+			dataPersistenceObjects = FindAllDataPersistenceObjects();
+			LoadProfile();
+		}
 	}
 
 	// load profile in directory
 	public void LoadProfile()
 	{
-		profileData = dataHandler.Load();
+		profileData = profileDataHandler.Load();
 
 		if (profileData == null)
 		{
 			Debug.Log("No profile was found. Initializing profile to default values.");
-			NewProfile();
+			profileData = new PlayerProfileData();
 		}
 
 		if (dataPersistenceObjects.Count > 0)
@@ -63,6 +75,7 @@ public class DataPersistenceManager : MonoBehaviour
 				obj.LoadProfile(profileData);
 		}
 
+		// TODO: TAKE THIS OUT
 		Debug.Log("Loaded profile");
 		Debug.Log("DEBUG:");
 		foreach (var i in profileData.Profile)
@@ -72,7 +85,7 @@ public class DataPersistenceManager : MonoBehaviour
 	// save profile in directory
 	public void SaveProfile()
 	{
-		if (dataHandler == null)
+		if (profileDataHandler == null)
 		{
 			Debug.Log("Error trying to save profile. Data Handler was null");
 			return;
@@ -84,12 +97,18 @@ public class DataPersistenceManager : MonoBehaviour
 				obj.SaveProfile(ref profileData);
 		}
 
-		dataHandler.Save(profileData);
+		profileDataHandler.Save(profileData);
 
+		// TODO: TAKE THIS OUT
 		Debug.Log("Saved profile");
 		Debug.Log("DEBUG:");
 		foreach (var i in profileData.Profile)
 			Debug.Log(i);
+	}
+
+	public void SaveSurveyRun(SurveyDataRun data)
+	{
+		surveyDataHandler.Save(data);
 	}
 
 	// on application closed save profile in directory

@@ -1,4 +1,3 @@
-using Unity.VisualScripting;
 using UnityEditor;
 using UnityEditorInternal;
 using UnityEngine;
@@ -287,7 +286,7 @@ public class PluginDataEditorWindow : Editor
 		title = "";
 
 		foreach (var i in split)
-			title += i.FirstCharacterToUpper() + " ";
+			title += char.ToUpper(i[0]) + i.Substring(1) + " ";
 
 		return title;
 	}

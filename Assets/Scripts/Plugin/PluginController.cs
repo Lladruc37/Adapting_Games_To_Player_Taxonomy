@@ -16,6 +16,7 @@ public class PluginController : MonoBehaviour, IDataPersistence
 
 	// plugin data
 	[SerializeField] private PluginData pluginData;
+	public bool pluginEnabled = true;
 
 	//current gameplay feature coefficient
 	public Dictionary<GameplayFeature, float> FeaturesCoefficient = new Dictionary<GameplayFeature, float>();
@@ -30,17 +31,16 @@ public class PluginController : MonoBehaviour, IDataPersistence
 			Instance = this;
 		else
 			Destroy(gameObject);
-
-		if (Application.isPlaying)
-			DontDestroyOnLoad(gameObject);
 	}
 
-	// trigger
 	public void PlayerTypeTrigger(Dictionary<PlayerTypes, float> changesToUpdate)
 	{
 		// TODO: Update the profile & act accordingly
 		foreach (var profileChange in changesToUpdate)
+		{
 			PlayerProfileData.Profile[profileChange.Key] += profileChange.Value;
+			PlayerProfileData.Profile[profileChange.Key] = Mathf.Clamp(PlayerProfileData.Profile[profileChange.Key], ProfileMinCellValue, ProfileMaxCellValue);
+		}
 
 		UpdateFeaturesCoefficient();
 	}
@@ -73,7 +73,28 @@ public class PluginController : MonoBehaviour, IDataPersistence
 			}
 		}
 
+		if (!pluginEnabled) return;
+
 		OnFeaturesCoefficientUpdated?.Invoke(); // segons el player type fes x o y ???
+	}
+
+	public float GetFeatureCoefficient(string featureName)
+	{
+		foreach (var feature in FeaturesCoefficient)
+		{
+			if (feature.Key.FeatureName == featureName)
+				return feature.Value;
+		}
+
+		return -1.0f;
+	}
+
+	// reset profile & send update
+	public void ResetProfile()
+	{
+		PlayerProfileData = new PlayerProfileData();
+		UpdateFeaturesCoefficient();
+		DataPersistenceManager.Instance.SaveProfile();
 	}
 
 	public void LoadProfile(PlayerProfileData data)

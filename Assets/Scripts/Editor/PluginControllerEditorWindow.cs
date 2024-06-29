@@ -1,4 +1,3 @@
-using Unity.VisualScripting;
 using UnityEditor;
 using UnityEngine;
 
@@ -34,6 +33,15 @@ public class PluginControllerEditorWindow : Editor
 		}
 		else
 		{
+			EditorGUILayout.BeginHorizontal();
+
+			GUIModularTextField(ObjectNames.NicifyVariableName("pluginEnabled"));
+			controller.pluginEnabled = EditorGUILayout.Toggle(controller.pluginEnabled);
+
+			EditorGUILayout.EndHorizontal();
+
+			EditorGUILayout.Space();
+
 			//player profile
 			GUIPlayerProfile(options);
 
@@ -209,7 +217,7 @@ public class PluginControllerEditorWindow : Editor
 		title = "";
 
 		foreach (var i in split)
-			title += i.FirstCharacterToUpper() + " ";
+			title += char.ToUpper(i[0]) + i.Substring(1) + " ";
 
 		return title;
 	}
